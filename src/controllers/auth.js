@@ -1,7 +1,8 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
-import { createError } from "../error.js";
+import { createError } from "../utils/error.js";
 import jwt from "jsonwebtoken";
+import { response_success_created } from "../utils/response.util.js";
 
 export const signup = async (req, res, next) => {
   try {
@@ -10,7 +11,7 @@ export const signup = async (req, res, next) => {
     const newUser = new User({ ...req.body, password: hash });
 
     await newUser.save();
-    return res.status(200).json("User has been created!");
+    return response_success_created(res, newUser, "User has been created!");
   } catch (err) {
     next(err);
   }

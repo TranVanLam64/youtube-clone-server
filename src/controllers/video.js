@@ -1,12 +1,16 @@
-import { createError } from "../error.js";
+import { createError } from "../utils/error.js";
 import Video from "../models/Video.js";
 import User from "../models/User.js";
+import {
+  response_success,
+  response_success_created,
+} from "../utils/response.util.js";
 
 export const addVideo = async (req, res, next) => {
   const newVideo = new Video({ userId: req.user.id, ...req.body });
   try {
     const savedVideo = await newVideo.save();
-    res.status(200).json(savedVideo);
+    return response_success_created(res, savedVideo, "Video has been created!");
   } catch (err) {
     next(err);
   }
@@ -24,7 +28,7 @@ export const updateVideo = async (req, res, next) => {
         },
         { new: true }
       );
-      res.status(200).json(updateVideo);
+      return response_success(res, updateVideo, "Video has been updated!");
     } else {
       return next(createError(403, "You can update your video!"));
     }
@@ -39,7 +43,7 @@ export const deleteVideo = async (req, res, next) => {
     if (!video) return next(createError(404, "Video not found!"));
     if (req.user.id === video.userId) {
       await Video.findByIdAndDelete(req.params.id);
-      res.status(200).json("Video has been deleted!");
+      return response_success(res, "Video has been deleted!");
     } else {
       return next(createError(403, "You can delete your video!"));
     }
@@ -51,7 +55,7 @@ export const deleteVideo = async (req, res, next) => {
 export const getVideo = async (req, res, next) => {
   try {
     const video = await Video.findById(req.params.id);
-    res.status(200).json(video);
+    return response_success(res, video, "Get video is successful!");
   } catch (err) {
     next(err);
   }
@@ -62,7 +66,7 @@ export const addView = async (req, res, next) => {
     await Video.findByIdAndUpdate(req.params.id, {
       $inc: { views: 1 },
     });
-    res.status(200).json("The view has been increased!");
+    return response_success(res, "The view has been increased!");
   } catch (err) {
     next(err);
   }
@@ -71,7 +75,7 @@ export const addView = async (req, res, next) => {
 export const random = async (req, res, next) => {
   try {
     const videos = await Video.aggregate([{ $sample: { size: 40 } }]);
-    res.status(200).json(videos);
+    return response_success(res, videos, "Get video by random is successful!");
   } catch (err) {
     next(err);
   }
@@ -80,7 +84,7 @@ export const random = async (req, res, next) => {
 export const trend = async (req, res, next) => {
   try {
     const videos = await Video.find().sort({ views: -1 });
-    res.status(200).json(videos);
+    return response_success(res, videos, "Get video by trend is successful!");
   } catch (err) {
     next(err);
   }
@@ -97,7 +101,7 @@ export const sub = async (req, res, next) => {
       })
     );
 
-    res.status(200).json(list);
+    return response_success(res, list, "Get video by sub is successful!");
   } catch (err) {
     next(err);
   }
@@ -107,7 +111,7 @@ export const getByTags = async (req, res, next) => {
   const tags = req.query.tags.split(",");
   try {
     const videos = await Video.find({ tags: { $in: tags } }).limit(20);
-    res.status(200).json(videos);
+    return response_success(res, videos, "Get video by tags is successful!");
   } catch (err) {
     next(err);
   }
@@ -119,7 +123,8 @@ export const search = async (req, res, next) => {
     const videos = Video.find({
       title: { $regex: query, $options: "i" },
     }).limit(40);
-    res.status(200).json(videos);
+
+    return response_success(res, videos, "Get video by search is successful!");
   } catch (err) {
     next(err);
   }

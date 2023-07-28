@@ -1,10 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
-import connect from "./db/connect.js";
-import userRoutes from "./routes/users.js";
-import commentRoutes from "./routes/comments.js";
-import videoRoutes from "./routes/videos.js";
-import authRoutes from "./routes/auth.js";
+import connect from "./src/db/connect.js";
+import userRoutes from "./src/routes/users.js";
+import commentRoutes from "./src/routes/comments.js";
+import videoRoutes from "./src/routes/videos.js";
+import authRoutes from "./src/routes/auth.js";
 import cookieParser from "cookie-parser";
 
 const app = express();

@@ -1,25 +1,36 @@
-import { createError } from "../error.js";
+import { createError } from "../utils/error.js";
 import Comment from "../models/Comment.js";
 import Video from "../models/Video.js";
+import {
+  response_success,
+  response_success_created,
+} from "../utils/response.util.js";
 
 export const addComment = async (req, res, next) => {
   const newComment = new Comment({ ...req.body, userId: req.user.id });
   try {
     const savedComment = await newComment.save();
-    res.status(200).json(savedComment);
+
+    return response_success_created(
+      res,
+      savedComment,
+      "Comment has been created!"
+    );
   } catch (err) {
     next(err);
   }
 };
 
 export const deleteComment = async (req, res, next) => {
+  const commentId = req.params.id;
+  const userId = req.user.id;
   try {
-    const comment = await Comment.findById(req.params.id);
+    const comment = await Comment.findById(commentId);
     const video = await Video.findOne({ videoId: comment.videoId });
 
-    if (req.user.id === comment.userId || req.user.id === video.userId) {
-      await Comment.findByIdAndDelete(req.params.id);
-      res.status(200).json("Comment has been deleted!");
+    if (userId === comment.userId || userId === video.userId) {
+      await Comment.findByIdAndDelete(commentId);
+      return response_success(res, "Comment has been deleted!");
     } else {
       return next(createError(403, "You can delete your comment!"));
     }

@@ -1,5 +1,6 @@
-import { createError } from "../error.js";
+import { createError } from "../utils/error.js";
 import User from "../models/User.js";
+import { response_success } from "../utils/response.util.js";
 
 export const update = async (req, res, next) => {
   if (req.params.id === req.user.id) {
@@ -11,7 +12,7 @@ export const update = async (req, res, next) => {
         },
         { new: true }
       );
-      res.status(200).json(updateUser);
+      return response_success(res, updateUser, "User has been updated!");
     } catch (err) {
       next(err);
     }
@@ -24,7 +25,7 @@ export const deleteUser = async (req, res, next) => {
   if (req.params.id === req.user.id) {
     try {
       await User.findByIdAndDelete(req.params.id);
-      res.status(200).json("User has been deleted!");
+      return response_success(res, "User has been deleted!");
     } catch (err) {
       next(err);
     }
@@ -36,7 +37,7 @@ export const deleteUser = async (req, res, next) => {
 export const getUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
-    res.status(200).json(user);
+    return response_success(res, user, "Get user successful!");
   } catch (err) {
     next(err);
   }
@@ -52,7 +53,7 @@ export const subscribe = async (req, res, next) => {
       $inc: { subscribers: 1 },
     });
 
-    res.status(200).json("Subscription successful!");
+    return response_success(res, "Subscription successful!");
   } catch (err) {
     next(err);
   }
@@ -68,7 +69,7 @@ export const unSubscribe = async (req, res, next) => {
       $inc: { subscribers: -1 },
     });
 
-    res.status(200).json("UnSubscription successful!");
+    return response_success(res, "UnSubscription successful!");
   } catch (err) {
     next(err);
   }
